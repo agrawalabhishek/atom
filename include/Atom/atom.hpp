@@ -78,8 +78,8 @@ void executeAtomSolver(
     const Vector3& arrivalPosition,
     const Real timeOfFlight,
     const Vector3& departureVelocityGuess,
-    const Vector3& departureVelocity,
-    const Vector3& arrivalVelocity,
+    Vector3& departureVelocity,
+    Vector3& arrivalVelocity,
     std::string& solverStatusSummary,
     int& numberOfIterations,
     const Tle& referenceTle = Tle( ),
@@ -131,8 +131,8 @@ void executeAtomSolver(
     const Vector3& arrivalPosition,
     const Real timeOfFlight,
     const Vector3& departureVelocityGuess,
-    const Vector3& departureVelocity,
-    const Vector3& arrivalVelocity );
+    Vector3& departureVelocity,
+    Vector3& arrivalVelocity );
 
 //! Compute residuals to execute Atom solver.
 /*!
@@ -180,8 +180,8 @@ void executeAtomSolver(
     const Vector3& arrivalPosition,
     const Real timeOfFlight,
     const Vector3& departureVelocityGuess,
-    const Vector3& departureVelocity,
-    const Vector3& arrivalVelocity,
+    Vector3& departureVelocity,
+    Vector3& arrivalVelocity,
     std::string& solverStatusSummary,
     int& numberOfIterations,
     const Tle& referenceTle,
@@ -324,8 +324,8 @@ void executeAtomSolver(
     const Vector3& arrivalPosition,
     const Real timeOfFlight,
     const Vector3& departureVelocityGuess,
-    const Vector3& departureVelocity,
-    const Vector3& arrivalVelocity )
+    Vector3& departureVelocity,
+    Vector3& arrivalVelocity )
 {
     std::string dummyString = "";
     int dummyint = 0;
