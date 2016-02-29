@@ -52,6 +52,8 @@ namespace atom
  * @param  timeOfFlight                Time-of-Flight for orbital transfer [s]
  * @param  departureVelocityGuess      Initial guess for the departure velocity (serves as initial
  *                                     guess for the internal root-finding procedure) [km/s]
+ * @param  departureVelocity           Final Departure Velocity [km/s]
+ * @param  arrivalVelocity             Final arrival Velocity [km/s]
  * @param  solverStatusSummary         Status of non-linear solver printed as a table
  * @param  numberOfIterations          Number of iterations completed by solver
  * @param  referenceTle                Reference Two Line Elements [default: 0-TLE]
@@ -67,15 +69,17 @@ namespace atom
  *                                     solver reaches this limit, the loop will be broken and the
  *                                     solver status will report that it has not converged
  *                                     [default: 100].
- * @return                             Departure and arrival velocities (stored in that order)
+ * @return                             void
  */
 template< typename Real, typename Vector3 >
-const std::pair< Vector3, Vector3 > executeAtomSolver(
+void executeAtomSolver(
     const Vector3& departurePosition,
     const DateTime& departureEpoch,
     const Vector3& arrivalPosition,
     const Real timeOfFlight,
     const Vector3& departureVelocityGuess,
+    const Vector3& departureVelocity,
+    const Vector3& arrivalVelocity,
     std::string& solverStatusSummary,
     int& numberOfIterations,
     const Tle& referenceTle = Tle( ),
@@ -116,15 +120,19 @@ const std::pair< Vector3, Vector3 > executeAtomSolver(
  * @param  timeOfFlight           Time-of-Flight for orbital transfer [s]
  * @param  departureVelocityGuess Initial guess for the departure velocity (serves as initial
  *                                guess for the internal root-finding procedure) [km/s]
- * @return                        Departure and arrival velocities (stored in that order)
+ * @param  departureVelocity      Final Departure Velocity [km/s]
+ * @param  arrivalVelocity        Final arrival Velocity [km/s]
+ * @return                        Void
  */
 template< typename Real, typename Vector3 >
-const std::pair< Vector3, Vector3 > executeAtomSolver(
+void executeAtomSolver(
     const Vector3& departurePosition,
     const DateTime& departureEpoch,
     const Vector3& arrivalPosition,
     const Real timeOfFlight,
-    const Vector3& departureVelocityGuess );
+    const Vector3& departureVelocityGuess,
+    const Vector3& departureVelocity,
+    const Vector3& arrivalVelocity );
 
 //! Compute residuals to execute Atom solver.
 /*!
@@ -166,12 +174,14 @@ struct AtomParameters;
 
 //! Execute Atom solver.
 template< typename Real, typename Vector3 >
-const std::pair< Vector3, Vector3 > executeAtomSolver(
+void executeAtomSolver(
     const Vector3& departurePosition,
     const DateTime& departureEpoch,
     const Vector3& arrivalPosition,
     const Real timeOfFlight,
     const Vector3& departureVelocityGuess,
+    const Vector3& departureVelocity,
+    const Vector3& arrivalVelocity,
     std::string& solverStatusSummary,
     int& numberOfIterations,
     const Tle& referenceTle,
@@ -261,7 +271,6 @@ const std::pair< Vector3, Vector3 > executeAtomSolver(
     solverStatusSummary = summary.str( );
 
     // Store final departure velocity.
-    Vector3 departureVelocity( 3 );
     for ( int i = 0; i < 3; i++ )
     {
         departureVelocity[ i ] = gsl_vector_get( solver->x, i );
@@ -298,7 +307,6 @@ const std::pair< Vector3, Vector3 > executeAtomSolver(
     DateTime arrivalEpoch = departureEpoch.AddSeconds( timeOfFlight );
     Eci arrivalState = sgp4.FindPosition( arrivalEpoch );
 
-    Vector3 arrivalVelocity( 3 );
     arrivalVelocity[ 0 ] = arrivalState.Velocity( ).x;
     arrivalVelocity[ 1 ] = arrivalState.Velocity( ).y;
     arrivalVelocity[ 2 ] = arrivalState.Velocity( ).z;
@@ -306,29 +314,30 @@ const std::pair< Vector3, Vector3 > executeAtomSolver(
     // Free up memory.
     gsl_multiroot_fsolver_free( solver );
     gsl_vector_free( initialGuess );
-
-    // Return departure and arrival velocities.
-    return std::make_pair< Vector3, Vector3 >( departureVelocity, arrivalVelocity );
 }
 
 //! Execute Atom solver.
 template< typename Real, typename Vector3 >
-const std::pair< Vector3, Vector3 > executeAtomSolver(
+void executeAtomSolver(
     const Vector3& departurePosition,
     const DateTime& departureEpoch,
     const Vector3& arrivalPosition,
     const Real timeOfFlight,
-    const Vector3& departureVelocityGuess )
+    const Vector3& departureVelocityGuess,
+    const Vector3& departureVelocity,
+    const Vector3& arrivalVelocity )
 {
     std::string dummyString = "";
     int dummyint = 0;
-    return executeAtomSolver( departurePosition,
-                              departureEpoch,
-                              arrivalPosition,
-                              timeOfFlight,
-                              departureVelocityGuess,
-                              dummyString,
-                              dummyint );
+    executeAtomSolver( departurePosition,
+                       departureEpoch,
+                       arrivalPosition,
+                       timeOfFlight,
+                       departureVelocityGuess,
+                       departureVelocity,
+                       arrivalVelocity,
+                       dummyString,
+                       dummyint );
 }
 
 //! Compute residuals to execute Atom solver.
