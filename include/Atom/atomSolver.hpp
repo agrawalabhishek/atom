@@ -109,12 +109,12 @@ namespace atom
 	template< typename Real, typename Vector3, typename Vector2D >
 	void LUdecomp(
 		Vector2D& jacobian, // input and output 
-		Vector3& index, // output - records row permutation afected by partial pivoting
+		Vector3& index, // output - records row permutation affected by partial pivoting
 		Real& indicator ) // output - indicator whether number of row inter-changes was even or odd 
 	{
 		const Real tiny = 1.0e-20; // a very small number
 		std::vector< Real > rowImplicitScaling( 3 ); // stores implicit scaling of each row of the jacobian matrix
-		indicator = 0.0; // no row interchanges yet
+		indicator = 1.0; // no row interchanges yet
 		
 		// loop over rows to get implicit scaling information for each row of the jacobian matrix.
 		// The implicit scaler for each row is the inverse of the largest element in that row.
@@ -133,10 +133,11 @@ namespace atom
 		}
 
 		int imax = 0;
+		int i, j; // indices used in the for loops below
 		// loop over the columns of the jacobian matrix (crout's method), lower triangle diagonal elements assumed all unity
-		for ( int j = 0; j < 3; j++ )
+		for ( j = 0; j < 3; j++ )
 		{
-			for ( int i = 0; i < j; i++ ) // first procedure, excpt i=j, equation 2.3.12 in Numerical Recipes for c++ 2nd ed. 
+			for ( i = 0; i < j; i++ ) // first procedure, excpt i=j, equation 2.3.12 in Numerical Recipes for c++ 2nd ed. 
 			{
 				Real sum = jacobian[ i ][ j ]; // storing a[i][j] in 2.3.12
 				for ( int k = 0; k < i; k++ )
@@ -144,10 +145,10 @@ namespace atom
 					sum = sum - jacobian[ i ][ k ] * jacobian[ k ][ j ]; // solving 2.3.12
 				}
 				jacobian[ i ][ j ] = sum; // storing beta[i][j] in equation 2.3.12
-			} // end of first procedure, except i=j
+			} // end of first procedure, except for i=j
 			
-			Real big = 0.0; // to search the largest pivot element for eqn 2.3.13
-			for ( i = j; i < n; i++ ) // includes i=j of the first procedure for eqn 2.3.12 and i>j of the second procedure for eqn 2.3.13
+			Real big = 0.0; // to search the largest pivot element (divisor beta) for eqn 2.3.13
+			for ( i = j; i < 3; i++ ) // includes i=j of the first procedure for eqn 2.3.12 and i>j of the second procedure for eqn 2.3.13
 			{
 				Real sum = jacobian[ i ][ j ]; 
 				for ( int k = 0; k < j; k++ )
@@ -155,22 +156,46 @@ namespace atom
 					sum = sum - jacobian[ i ][ k ] * jacobian[ k ][ j ]; // solving RHS bracketed term in equation 2.3.13, pivot division not done
 				}
 				jacobian[ i ][ j ] = sum;
-				Real meritFigure = rowImplicitScaling[ i ] * std::abs( sum ); // figure of merit for the pivot element
-				if ( dummy >= meritFigure )
+				Real figureOfMerit = rowImplicitScaling[ i ] * std::abs( sum ); // figure of merit for the pivot element
+				if ( figureOfMerit >= big )
 				{
-					big = meritFigure;
+					big = figureOfMerit;
 					imax = i; // store row value for which the figure of merit for the pivot element is the best
 				}
 			} // first procedure i=j finished, second procedure i>j partially finished (pivot division still left)
 			if ( j != imax ) // for interchanging rows if the condition is true
 			{
-				
+				for ( int k = 0; k < 3; k++ )
+				{
+					Real temp = jacobian[ imax ][ k ];
+					jacobian[ imax ][ k ] = jacobian[ j ][ k ];
+					jacobian[ j ][ k ] = temp;
+				}
+				indicator = -1.0 * indicator; // change polarity of the row change indicator, indicating a row change happened
+				rowImplicitScaling[ imax ] = rowImplicitScaling[ j ]; // interchange row scaling factor as well
 			}
-		}
+			index[ j ] = imax; // stores the row value at which figure of merit for pivot element is the best
+			if ( jacobian[ j ][ j ] == 0.0 )
+				jacobian[ j ][ j ] = tiny; // changing pivot element from 0.0 to a near zero value, else the jacobian will be singular
+			if ( j != 3 - 1 ) // conducting pivot division finally
+			{
+				Real temp = 1.0 / jacobian[ j ][ j ];
+				for ( i = j + 1; i < 3; i++ )
+					jacobian[ i ][ j ] *= temp; // division part in equation 2.3.13 finally performed for all i>j, second procedure finished
+			} 
+		} // loop to next column of the partially modified jacobian matrix
 	}
 
-	// LU backward substitution snippet
-
+	// LU backward substitution snippet. Solves the multidimensional linear equation A.X = B. 
+	// in atom's case, the linear equation is jacobian * dV = -1.0 * nonLinearFunction. 
+	template< typename Real, typename Vector3, typename Vector2D >
+	void LUbackSub(
+		Vector2D& jacobian, // input jacobain matrix in its LU decomposed form
+		Vector3& index, // input row permutation vector obtained from the LU decomposition routine
+		Vector3& solutionMatrix ) // input as the RHS matrix B in the linear equation and also the output solution matrix X
+	{
+		
+	}
 	// atom solver snippet
 
 } // namespace atom
