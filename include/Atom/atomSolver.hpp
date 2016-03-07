@@ -246,6 +246,29 @@ namespace atom
 	    const Real relativeTolerance,
 	    const int maximumIterations )
 	{
-		
+		int counter = 0; // newton rhapson iteration counter
+		departureVelocity = departureVelocityGuess; // copy the initial guess to use in the newton rhapson method below
+		for ( int k = 0; k < maximumIterations; k++ ) // run the Newton Rhapson iterations
+		{
+			// get the non linear function value for the current departure velocity vector
+			std::vector< Real > Fvector( 3 );
+			computeNonLinearFunction( departureVelocity, Fvector );
+
+			// get the jacobian matrix for the current departure velocity vector and corresponding non linear function value
+			std::vector< std::vector< Real > > jacobian( 3, std::vector< Real >( 3 ) ); 
+			computeJacobian( departureVelocity, Fvector, jacobian );
+
+			// absolute tolerance check
+			Real functionResidual = 0.0;
+			for (int i = 0; i < 3; i++ )
+				functionResidual += std::abs( Fvector[ i ] );
+			if ( functionResidual <= absoluteTolerance )
+			{
+				std::cout << "Absolute tolerance achieved, atom solver stopped" << std::endl;
+				return;
+			}
+
+			// solve linear equation using LU decomp and LU back substitution
+		}
 	}
 } // namespace atom
