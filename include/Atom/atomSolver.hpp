@@ -187,15 +187,65 @@ namespace atom
 	}
 
 	// LU backward substitution snippet. Solves the multidimensional linear equation A.X = B. 
-	// in atom's case, the linear equation is jacobian * dV = -1.0 * nonLinearFunction. 
+	// in atom's case, the linear equation is jacobian * dV = -1.0 * nonLinearFunction.
+	// foloowing routine adopted from "Numerical recipes in c++" 2nd edition 
 	template< typename Real, typename Vector3, typename Vector2D >
 	void LUbackSub(
-		Vector2D& jacobian, // input jacobain matrix in its LU decomposed form
-		Vector3& index, // input row permutation vector obtained from the LU decomposition routine
+		Vector2D jacobian, // input jacobain matrix in its LU decomposed form
+		Vector3 index, // input row permutation vector obtained from the LU decomposition routine
 		Vector3& solutionMatrix ) // input as the RHS matrix B in the linear equation and also the output solution matrix X
+	{
+		int ii = 0; // indexing variable used later for storing the first nonvanishing element of the solution matrix
+
+		// first part is the forward substitution to solve equation 2.3.6
+		for ( int i = 0; i < 3; i++ )
+		{
+			int rowPermutation = index[ i ];
+			Real sum = solutionMatrix[ rowPermutation ];
+			solutionMatrix[ rowPermutation ] = solutionMatrix[ i ];
+			if ( ii != 0 )
+			{
+				for ( int j = ii - 1; j < i; j++ )
+				{
+					sum = sum - jacobian[ i ][ j ] * solutionMatrix[ j ];
+				}
+			}
+			else if ( sum != 0.0 )
+			{
+				ii = i + 1;
+			}
+			solutionMatrix[ i ] = sum; // store solutions for the forward substitution method
+		}
+
+		// second part is the backward substitution method to solve equation 2.3.7
+		for ( int i = 3 - 1; i >= 0; i-- )
+		{
+			Real sum = solutionMatrix[ i ];
+			for ( int j = i + 1; j < 3; j++ )
+				sum = sum - jacobian[ i ][ j ] * solutionMatrix[ j ];
+			solutionMatrix[ i ] = sum / jacobian[ i ][ i ]; // store final solution
+		}
+	}
+
+	// atom solver snippet
+	template< typename Real, typename Vector3 >
+	void executeAtomSolver(
+	    const Vector3& departurePosition,
+	    const DateTime& departureEpoch,
+	    const Vector3& arrivalPosition,
+	    const Real timeOfFlight,
+	    const Vector3& departureVelocityGuess,
+	    Vector3& departureVelocity,
+	    Vector3& arrivalVelocity,
+	    std::string& solverStatusSummary,
+	    int& numberOfIterations,
+	    const Tle& referenceTle = Tle( ),
+	    const Real earthGravitationalParameter,
+	    const Real earthMeanRadius,
+	    const Real absoluteTolerance,
+	    const Real relativeTolerance,
+	    const int maximumIterations )
 	{
 		
 	}
-	// atom solver snippet
-
 } // namespace atom
