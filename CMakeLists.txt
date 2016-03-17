@@ -95,7 +95,9 @@ include(Dependencies.cmake)
 if(BUILD_MAIN)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_PATH})
   add_executable(${MAIN_NAME} ${MAIN_SRC})
-  target_link_libraries(${MAIN_NAME})
+  target_link_libraries(${MAIN_NAME}
+    ${SGP4_LIBRARY}
+    ${GSL_LIBRARIES})
 endif(BUILD_MAIN)
 
 if(BUILD_DOXYGEN_DOCS)
