@@ -80,7 +80,7 @@ const Tle convertCartesianStateToTwoLineElements(
     const Real earthGravitationalParameter = kMU,
     const Real earthMeanRadius = kXKMPER,
     const Real absoluteTolerance = 1.0e-10,
-    const Real relativeTolerance = 1.0e-10,
+    const Real relativeTolerance = 1.0e-5,
     const int maximumIterations = 100 );
 
 //! Convert Cartesian state to TLE (Two Line Elements).
@@ -178,14 +178,14 @@ const Tle convertCartesianStateToTwoLineElements(
     // Set up parameters for residual function.
     CartesianToTwoLineElementsParameters< Vector6 > parameters( cartesianState, templateTle );
 
-for ( unsigned int i = 0; i < 6; ++i )
-{
-    std::cout << parameters.targetState[ i ] << std::endl;
-}
-std::cout << std::endl;
+// for ( unsigned int i = 0; i < 6; ++i )
+// {
+//     std::cout << parameters.targetState[ i ] << std::endl;
+// }
+// std::cout << std::endl;
 
-std::cout << parameters.templateTle << std::endl;
-std::cout << std::endl;
+// std::cout << parameters.templateTle << std::endl;
+// std::cout << std::endl;
 
     // Set up residual function.
     gsl_multiroot_function cartesianToTwoLineElementsFunction
@@ -198,24 +198,24 @@ std::cout << std::endl;
     const Vector6 initialKeplerianElements = astro::convertCartesianToKeplerianElements(
         parameters.targetState, earthGravitationalParameter );
 
-std::cout << initialKeplerianElements[ 0 ] << std::endl;
-std::cout << initialKeplerianElements[ 1 ] << std::endl;
-std::cout << initialKeplerianElements[ 2 ] / sml::SML_PI * 180.0 << std::endl;
-std::cout << initialKeplerianElements[ 3 ] / sml::SML_PI * 180.0 << std::endl;
-std::cout << initialKeplerianElements[ 4 ] / sml::SML_PI * 180.0 << std::endl;
-std::cout << initialKeplerianElements[ 5 ] / sml::SML_PI * 180.0 << std::endl;
+// std::cout << initialKeplerianElements[ 0 ] << std::endl;
+// std::cout << initialKeplerianElements[ 1 ] << std::endl;
+// std::cout << initialKeplerianElements[ 2 ] / sml::SML_PI * 180.0 << std::endl;
+// std::cout << initialKeplerianElements[ 3 ] / sml::SML_PI * 180.0 << std::endl;
+// std::cout << initialKeplerianElements[ 4 ] / sml::SML_PI * 180.0 << std::endl;
+// std::cout << initialKeplerianElements[ 5 ] / sml::SML_PI * 180.0 << std::endl;
 
-std::cout << std::endl;
+// std::cout << std::endl;
 
     // Compute initial guess for TLE mean elements.
     const Vector6 initialTleMeanElements
         = computeTleMeanElements( initialKeplerianElements, earthGravitationalParameter );
 
-for ( unsigned int i = 0; i < 6; ++i )
-{
-    std::cout << initialTleMeanElements[ i ] << std::endl;
-}
-std::cout << std::endl;
+// for ( unsigned int i = 0; i < 6; ++i )
+// {
+//     std::cout << initialTleMeanElements[ i ] << std::endl;
+// }
+// std::cout << std::endl;
 
     // Set initial guess.
     gsl_vector* initialGuessTleMeanElements = gsl_vector_alloc( 6 );
@@ -224,11 +224,11 @@ std::cout << std::endl;
         gsl_vector_set( initialGuessTleMeanElements, i, initialTleMeanElements[ i ] );
     }
 
-for ( unsigned int i = 0; i < 6; ++i )
-{
-    std::cout << gsl_vector_get( initialGuessTleMeanElements, i ) << std::endl;
-}
-std::cout << std::endl;
+// for ( unsigned int i = 0; i < 6; ++i )
+// {
+//     std::cout << gsl_vector_get( initialGuessTleMeanElements, i ) << std::endl;
+// }
+// std::cout << std::endl;
 
     // Set up solver type (derivative free).
     const gsl_multiroot_fsolver_type* solverType = gsl_multiroot_fsolver_hybrids;
@@ -249,39 +249,39 @@ std::cout << std::endl;
     // Print header for summary table to buffer.
     summary << printCartesianToTleSolverStateTableHeader( );
 
-std::cout << solverStatus << std::endl;
-std::cout << counter << std::endl;
-std::cout << summary << std::endl;
-std::cout << std::endl;
+// std::cout << solverStatus << std::endl;
+// std::cout << counter << std::endl;
+// std::cout << summary << std::endl;
+// std::cout << std::endl;
 
     do
     {
         // Print current state of solver for summary table.
         summary << printCartesianToTleSolverState( counter, solver );
 
-std::cout << summary << std::endl;
-std::cout << std::endl;
+// std::cout << summary << std::endl;
+// std::cout << std::endl;
 
         // Increment iteration counter.
         ++counter;
 
-std::cout << counter << std::endl;
-std::cout << std::endl;
+// std::cout << counter << std::endl;
+// std::cout << std::endl;
 
         // Execute solver iteration.
         solverStatus = gsl_multiroot_fsolver_iterate( solver );
 
-std::cout << solverStatus << std::endl;
-std::cout << std::endl;
+// std::cout << solverStatus << std::endl;
+// std::cout << std::endl;
 
-        // Check if solver is stuck; if it is stuck, break from loop.
-        if ( solverStatus )
-        {
-            std::cerr << "GSL solver status: " << solverStatus << std::endl;
-            std::cerr << summary.str( ) << std::endl;
-            std::cerr << std::endl;
-            throw std::runtime_error( "ERROR: Non-linear solver is stuck!" );
-        }
+        // // Check if solver is stuck; if it is stuck, break from loop.
+        // if ( solverStatus )
+        // {
+        //     std::cerr << "GSL solver status: " << solverStatus << std::endl;
+        //     std::cerr << summary.str( ) << std::endl;
+        //     std::cerr << std::endl;
+        //     throw std::runtime_error( "ERROR: Non-linear solver is stuck!" );
+        // }
 
         // Check if root has been found (within tolerance).
         solverStatus = gsl_multiroot_test_delta(
@@ -291,8 +291,8 @@ std::cout << std::endl;
     // Save number of iterations.
     numberOfIterations = counter - 1;
 
-std::cout << numberOfIterations << std::endl;
-std::cout << std::endl;
+// std::cout << numberOfIterations << std::endl;
+// std::cout << std::endl;
 
     // Print final status of solver to buffer.
     summary << std::endl;
@@ -302,17 +302,17 @@ std::cout << std::endl;
     // Write buffer contents to solver status summary string.
     solverStatusSummary = summary.str( );
 
-std::cout << solverStatusSummary << std::endl;
-std::cout << std::endl;
+// std::cout << solverStatusSummary << std::endl;
+// std::cout << std::endl;
 
     // Generate TLE with converged mean elements.
     Tle virtualTle = templateTle;
-    virtualTle.updateMeanElements( gsl_vector_get( solver->x, 0 ),
-                                   gsl_vector_get( solver->x, 1 ),
-                                   gsl_vector_get( solver->x, 2 ),
-                                   gsl_vector_get( solver->x, 3 ),
-                                   gsl_vector_get( solver->x, 4 ),
-                                   gsl_vector_get( solver->x, 5 ) );
+    virtualTle.updateMeanElements( sml::computeModulo( std::fabs( gsl_vector_get( solver->x, 0 ) ), 180.0 ),
+                                   sml::computeModulo( gsl_vector_get( solver->x, 1 ), 360.0 ),
+                                   sml::computeModulo( std::fabs( gsl_vector_get( solver->x, 2 ) ), 0.999 ),
+                                   sml::computeModulo( gsl_vector_get( solver->x, 3 ), 360.0 ),
+                                   sml::computeModulo( gsl_vector_get( solver->x, 4 ), 360.0 ),
+                                   std::fabs( gsl_vector_get( solver->x, 5 ) ) );
 
     // Free up memory.
     gsl_multiroot_fsolver_free( solver );
@@ -346,12 +346,12 @@ int computeCartesianToTwoLineElementResiduals( const gsl_vector* independentVari
     // Create a TLE object with the mean TLE elements generated by the root-finder.
     Tle tle = templateTle;
 
-    Real meanInclination = gsl_vector_get( independentVariables, 0 );
+    Real meanInclination = sml::computeModulo( std::fabs( gsl_vector_get( independentVariables, 0 ) ), 180.0 );
     Real meanRightAscendingNode = gsl_vector_get( independentVariables, 1 );
-    Real meanEccentricity = gsl_vector_get( independentVariables, 2 );
+    Real meanEccentricity = sml::computeModulo( std::fabs( gsl_vector_get( independentVariables, 2 ) ), 0.999 );
     Real meanArgumentPerigee = gsl_vector_get( independentVariables, 3 );
     Real meanMeanAnomaly = gsl_vector_get( independentVariables, 4 );
-    Real meanMeanMotion = gsl_vector_get( independentVariables, 5 );
+    Real meanMeanMotion = std::fabs( gsl_vector_get( independentVariables, 5 ) );
 
     tle.updateMeanElements( meanInclination,
                             meanRightAscendingNode,
