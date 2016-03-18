@@ -142,10 +142,37 @@ int computeCartesianToTwoLineElementResiduals( const gsl_vector* independentVari
                                                void* parameters,
                                                gsl_vector* residuals );
 
-//! Compute TLE mean elements.
+//! Compute initial guess for TLE mean elements.
+/*
+ * Computes initial guess for TLE mean elements by converting Keplerian elements provided by user
+ * TLE mean elements. The TLE mean elements generated are to floating-point precision, since the
+ * TLE class stores the internal values as doubles.
+ *
+ * @sa Tle
+ * @tparam Real                         Type for reals
+ * @tparam Vector6                      Type for 6-vector of reals
+ * @param  keplerianElements            Keplerian elements to be used as initial guess
+ *                                      The order of Keplerian elements in the vector is:
+ *                                      - semi-major axis                                      [km]
+ *                                      - eccentricity                                          [-]
+ *                                      - inclination                                         [rad]
+ *                                      - argument of periapsis                               [rad]
+ *                                      - right ascension of ascending node                   [rad]
+ *                                      - true anomaly                                        [rad]
+ * @param  earthGravitationalParameter  Earth gravitational parameter                   [km^3 s^-2]
+ * @return                              6-vector containing initial guess for TLE mean
+ *                                      elements
+ *                                      The order of mean TLE elements in the vector is:
+ *                                      - mean inclination                                    [deg]
+ *                                      - mean right ascension of ascending node              [deg]
+ *                                      - mean eccentricity                                     [-]
+ *                                      - mean argument of perigee                            [deg]
+ *                                      - mean mean anomaly                                   [deg]
+ *                                      - mean mean motion                                [rev/deg]
+ */
 template< typename Real, typename Vector6 >
-const Vector6 computeTleMeanElements( const Vector6& keplerianElements,
-                                      const Real earthGravitationalParameter );
+const Vector6 computeInitialGuessTleMeanElements( const Vector6& keplerianElements,
+                                                  const Real earthGravitationalParameter );
 
 //! Parameter struct used by Cartesian-to-TLE residual function.
 /*!
@@ -209,7 +236,8 @@ const Tle convertCartesianStateToTwoLineElements(
 
     // Compute initial guess for TLE mean elements.
     const Vector6 initialTleMeanElements
-        = computeTleMeanElements( initialKeplerianElements, earthGravitationalParameter );
+        = computeInitialGuessTleMeanElements( initialKeplerianElements,
+                                              earthGravitationalParameter );
 
 // for ( unsigned int i = 0; i < 6; ++i )
 // {
@@ -376,10 +404,10 @@ int computeCartesianToTwoLineElementResiduals( const gsl_vector* independentVari
     return GSL_SUCCESS;
 }
 
-//! Compute TLE mean elements.
+//! Compute initial guess for TLE mean elements.
 template< typename Real, typename Vector6 >
-const Vector6 computeTleMeanElements( const Vector6& keplerianElements,
-                                      const Real earthGravitationalParameter )
+const Vector6 computeInitialGuessTleMeanElements( const Vector6& keplerianElements,
+                                                  const Real earthGravitationalParameter )
 {
     Vector6 tleMeanElements = keplerianElements;
 
