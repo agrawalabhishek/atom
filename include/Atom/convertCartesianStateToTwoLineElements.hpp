@@ -302,14 +302,14 @@ const Tle convertCartesianStateToTwoLineElements(
 // std::cout << solverStatus << std::endl;
 // std::cout << std::endl;
 
-        // // Check if solver is stuck; if it is stuck, break from loop.
-        // if ( solverStatus )
-        // {
-        //     std::cerr << "GSL solver status: " << solverStatus << std::endl;
-        //     std::cerr << summary.str( ) << std::endl;
-        //     std::cerr << std::endl;
-        //     throw std::runtime_error( "ERROR: Non-linear solver is stuck!" );
-        // }
+        // Check if solver is stuck; if it is stuck, break from loop.
+        if ( solverStatus )
+        {
+            std::cerr << "GSL solver status: " << solverStatus << std::endl;
+            std::cerr << summary.str( ) << std::endl;
+            std::cerr << std::endl;
+            throw std::runtime_error( "ERROR: Non-linear solver is stuck!" );
+        }
 
         // Check if root has been found (within tolerance).
         solverStatus = gsl_multiroot_test_delta(
