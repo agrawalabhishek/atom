@@ -44,7 +44,8 @@ int main()
 
     //
     std::random_device rand_seed;
-    std::default_random_engine random_generator( rand_seed( ) );
+    // std::default_random_engine random_generator( rand_seed( ) );
+    std::default_random_engine random_generator( 385761 );
 
     std::uniform_real_distribution< double > uniformApsis( apsisMinimum, apsisMaximum );
     std::uniform_real_distribution< double > uniformAngles( 0.0, 360.0 );
@@ -62,6 +63,9 @@ int main()
     int countXPositionRelativeErrorExceptions = 0;
     int countYPositionRelativeErrorExceptions = 0;
     int countZPositionRelativeErrorExceptions = 0;
+    int countXVelocityRelativeErrorExceptions = 0;
+    int countYVelocityRelativeErrorExceptions = 0;
+    int countZVelocityRelativeErrorExceptions = 0;
     int numberOfIterations = 0;
     std::string solverStatusSummary;
 
@@ -87,18 +91,7 @@ int main()
         keplerianElements[ astro::longitudeOfAscendingNodeIndex ] = sml::convertDegreesToRadians( uniformAngles( random_generator ) );
         keplerianElements[ astro::trueAnomalyIndex ] = sml::convertDegreesToRadians( uniformAngles( random_generator ) );
 
-        // for ( unsigned int i = 0; i < 6; ++i )
-        // {
-        //     std::cout << keplerianElements[ i ] << std::endl;
-        // }
-        // std::cout << std::endl;
-
         Vec cartesianState = astro::convertKeplerianToCartesianElements( keplerianElements, kMU );
-        // for ( unsigned int i = 0; i < 6; ++i )
-        // {
-        //     std::cout << cartesianState[ i ] << std::endl;
-        // }
-        // std::cout << std::endl;
 
         Tle virtualTle;
         try
@@ -107,15 +100,9 @@ int main()
         }
         catch( std::exception& e )
         {
-            // std::cout << e.what( ) << std::endl;
-            std::cout << solverStatusSummary << std::endl;
-
             if ( strcmp( e.what( ), "Error: Satellite decayed" ) == 0 )
             {
                 ++countDecayedExceptions;
-                // std::cout << e.Position( ) << std::endl;
-                // std::cout << e.Velocity( ) << std::endl;
-                // std::cout << e.Decayed( ) << std::endl;
             }
 
             else if ( strcmp( e.what( ), "Error: (pl < 0.0)" ) == 0 )
@@ -130,27 +117,19 @@ int main()
 
             else
             {
+                // std::cout << solverStatusSummary << std::endl;
                 ++countUndefinedExceptions;
             }
 
-            // for ( unsigned int i = 0; i < 5; ++i )
-            // {
-            //     std::cout << keplerianElements[ i ] << ", ";
-            // }
-            // std::cout << keplerianElements[ 5 ] << std::endl;
-            // std::cout << std::endl;
             continue;
         }
 
-        if ( numberOfIterations > 100 )
+        if ( numberOfIterations > 98 )
         {
-            throw( "iterations > 100 " );
+            // std::cout << solverStatusSummary << std::endl;
             ++countIterationsExceptions;
             continue;
         }
-
-        // std::cout << virtualTle << std::endl;
-        // std::cout << std::endl;
 
         Vector position( 0.0, 0.0, 0.0, 0.0 );
         Vector velocity( 0.0, 0.0, 0.0, 0.0 );
@@ -168,52 +147,65 @@ int main()
 
         const double tolerance = 1.0e-5;
 
-        const double xPositionRelativeError = ( state.Position( ).x - cartesianState[ 0 ] ) / cartesianState[ 0 ];
+        const double xPositionRelativeError = std::fabs( state.Position( ).x - cartesianState[ 0 ] ) / std::fabs( cartesianState[ 0 ] );
+
         if ( xPositionRelativeError > tolerance )
         {
             std::cout << "x-position relative error: "
                       << xPositionRelativeError << ", "
                       << state.Position( ).x  << ", "
                       << cartesianState[ 0 ] << std::endl;
-            // for ( unsigned int i = 0; i < 5; ++i )
-            // {
-            //     std::cout << keplerianElements[ i ] << ", ";
-            // }
-            // std::cout << keplerianElements[ 5 ] << std::endl;
-            // std::cout << std::endl;
             ++countXPositionRelativeErrorExceptions;
         }
 
-        const double yPositionRelativeError = ( state.Position( ).y - cartesianState[ 1 ] ) / cartesianState[ 1 ];
+        const double yPositionRelativeError = std::fabs( state.Position( ).y - cartesianState[ 1 ] ) / std::fabs( cartesianState[ 1 ] );
         if ( yPositionRelativeError > tolerance )
         {
             std::cout << "y-position relative error: "
                       << yPositionRelativeError << ", "
                       << state.Position( ).y << ", "
                       << cartesianState[ 1 ]<< std::endl;
-            // for ( unsigned int i = 0; i < 5; ++i )
-            // {
-            //     std::cout << keplerianElements[ i ] << ", ";
-            // }
-            // std::cout << keplerianElements[ 5 ] << std::endl;
-            // std::cout << std::endl;
             ++countYPositionRelativeErrorExceptions;
         }
 
-        const double zPositionRelativeError = ( state.Position( ).z - cartesianState[ 2 ] ) / cartesianState[ 2 ];
+        const double zPositionRelativeError = std::fabs( state.Position( ).z - cartesianState[ 2 ] ) / std::fabs( cartesianState[ 2 ] );
         if ( zPositionRelativeError > tolerance )
         {
             std::cout << "z-position relative error: "
                       << zPositionRelativeError << ", "
                       << state.Position( ).z << ", "
                       << cartesianState[ 2 ] << std::endl;
-            // for ( unsigned int i = 0; i < 5; ++i )
-            // {
-            //     std::cout << keplerianElements[ i ] << ", ";
-            // }
-            // std::cout << keplerianElements[ 5 ] << std::endl;
-            // std::cout << std::endl;
             ++countZPositionRelativeErrorExceptions;
+        }
+
+        const double xVelocityRelativeError = std::fabs( state.Velocity( ).x - cartesianState[ 3 ] ) / std::fabs( cartesianState[ 3 ] );
+        if ( xVelocityRelativeError > tolerance )
+        {
+            std::cout << "x-velocity relative error: "
+                      << xVelocityRelativeError << ", "
+                      << state.Velocity( ).x  << ", "
+                      << cartesianState[ 3 ] << std::endl;
+            ++countXVelocityRelativeErrorExceptions;
+        }
+
+        const double yVelocityRelativeError = std::fabs( state.Velocity( ).y - cartesianState[ 4 ] ) / std::fabs( cartesianState[ 4 ] );
+        if ( yVelocityRelativeError > tolerance )
+        {
+            std::cout << "y-velocity relative error: "
+                      << yVelocityRelativeError << ", "
+                      << state.Velocity( ).y << ", "
+                      << cartesianState[ 4 ]<< std::endl;
+            ++countYVelocityRelativeErrorExceptions;
+        }
+
+        const double zVelocityRelativeError = std::fabs( state.Velocity( ).z - cartesianState[ 5 ] ) / std::fabs( cartesianState[ 5 ] );
+        if ( zVelocityRelativeError > tolerance )
+        {
+            std::cout << "z-velocity relative error: "
+                      << zVelocityRelativeError << ", "
+                      << state.Velocity( ).z << ", "
+                      << cartesianState[ 5 ] << std::endl;
+            ++countZVelocityRelativeErrorExceptions;
         }
     }
 
@@ -225,7 +217,10 @@ int main()
                               + countFindPositionExceptions
                               + countXPositionRelativeErrorExceptions
                               + countYPositionRelativeErrorExceptions
-                              + countZPositionRelativeErrorExceptions;
+                              + countZPositionRelativeErrorExceptions
+                              + countXVelocityRelativeErrorExceptions
+                              + countYVelocityRelativeErrorExceptions
+                              + countZVelocityRelativeErrorExceptions;
 
     std::cout << std::endl;
     std::cout << "Number of Decayed exception cases: " << countDecayedExceptions << std::endl;
@@ -237,6 +232,9 @@ int main()
     std::cout << "Number of x-position relative error exception cases: " << countXPositionRelativeErrorExceptions << std::endl;
     std::cout << "Number of y-position relative error exception cases: " << countYPositionRelativeErrorExceptions << std::endl;
     std::cout << "Number of z-position relative error exception cases: " << countZPositionRelativeErrorExceptions << std::endl;
+    std::cout << "Number of x-velocity relative error exception cases: " << countXVelocityRelativeErrorExceptions << std::endl;
+    std::cout << "Number of y-velocity relative error exception cases: " << countYVelocityRelativeErrorExceptions << std::endl;
+    std::cout << "Number of z-velocity relative error exception cases: " << countZVelocityRelativeErrorExceptions << std::endl;
     std::cout << "Number of exception cases: " << countExceptions << std::endl;
     std::cout << std::endl;
 
