@@ -24,6 +24,8 @@ int main()
     // std::cout << std::endl;
     std::cout.precision( 15 );
 
+    int seed = 478050479;
+
     //
     const double apsisMinimum = 6700.0;
     const double apsisMaximum = 50000.0;
@@ -40,7 +42,7 @@ int main()
     // const double trueAnomalyMinimum = 0.0;
     // const double trueAnomalyMaximum = 360.0;
 
-    const int trials = 100000;
+    const int trials = 1000000;
 
     //
     std::random_device rand_seed;
@@ -55,6 +57,7 @@ int main()
     // std::cout << std::endl;
 
     int countUndefinedExceptions = 0;
+    int countSolverStuckExceptions = 0;
     int countDecayedExceptions = 0;
     int countPlExceptions = 0;
     int countElsqExceptions = 0;
@@ -84,7 +87,6 @@ int main()
         }
 
         keplerianElements[ astro::eccentricityIndex ] = std::fabs( apsis1 - apsis2 ) / ( apsis1 + apsis2 );
-        // keplerianElements[ astro::eccentricityIndex ] = 0.0001;
         keplerianElements[ astro::semiMajorAxisIndex ] = periapsis / ( 1.0 - keplerianElements[ astro::eccentricityIndex ] );
         keplerianElements[ astro::inclinationIndex ] = sml::convertDegreesToRadians( sml::computeModulo( uniformAngles( random_generator ), 180.0 ) );
         keplerianElements[ astro::argumentOfPeriapsisIndex ] = sml::convertDegreesToRadians( uniformAngles( random_generator ) );
@@ -104,6 +106,11 @@ int main()
             {
                 ++countDecayedExceptions;
             }
+
+            // else if ( strcmp( e.what( ), "Error: Satellite decayed" ) == 0 )
+            // {
+            //     ++countDecayedExceptions;
+            // }
 
             else if ( strcmp( e.what( ), "Error: (pl < 0.0)" ) == 0 )
             {
@@ -209,7 +216,8 @@ int main()
         }
     }
 
-    const int countExceptions = countDecayedExceptions
+    const int countExceptions = countSolverStuckExceptions
+                              + countDecayedExceptions
                               + countPlExceptions
                               + countElsqExceptions
                               + countUndefinedExceptions
@@ -223,6 +231,7 @@ int main()
                               + countZVelocityRelativeErrorExceptions;
 
     std::cout << std::endl;
+    std::cout << "Number of solver stuck cases: " << countSolverStuckExceptions << std::endl;
     std::cout << "Number of Decayed exception cases: " << countDecayedExceptions << std::endl;
     std::cout << "Number of Pl exception cases: " << countPlExceptions << std::endl;
     std::cout << "Number of Elsq exception cases: " << countElsqExceptions << std::endl;
