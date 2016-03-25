@@ -102,15 +102,15 @@ int main()
         }
         catch( std::exception& e )
         {
-            if ( strcmp( e.what( ), "Error: Satellite decayed" ) == 0 )
+            if ( strcmp( e.what( ), "ERROR: Non-linear solver is stuck!" ) == 0 )
+            {
+                ++countSolverStuckExceptions;
+            }
+
+            else if ( strcmp( e.what( ), "Error: Satellite decayed" ) == 0 )
             {
                 ++countDecayedExceptions;
             }
-
-            // else if ( strcmp( e.what( ), "Error: Satellite decayed" ) == 0 )
-            // {
-            //     ++countDecayedExceptions;
-            // }
 
             else if ( strcmp( e.what( ), "Error: (pl < 0.0)" ) == 0 )
             {
@@ -124,7 +124,6 @@ int main()
 
             else
             {
-                // std::cout << solverStatusSummary << std::endl;
                 ++countUndefinedExceptions;
             }
 
@@ -133,7 +132,6 @@ int main()
 
         if ( numberOfIterations > 98 )
         {
-            // std::cout << solverStatusSummary << std::endl;
             ++countIterationsExceptions;
             continue;
         }
