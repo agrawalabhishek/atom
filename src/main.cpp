@@ -46,13 +46,8 @@ int main()
 
     //
     std::random_device rand_seed;
-<<<<<<< Updated upstream
-    // std::default_random_engine random_generator( rand_seed( ) );
-    std::default_random_engine random_generator( 385761 );
-=======
     std::cout << rand_seed( ) << std::endl;
     std::default_random_engine random_generator( seed );
->>>>>>> Stashed changes
 
     std::uniform_real_distribution< double > uniformApsis( apsisMinimum, apsisMaximum );
     std::uniform_real_distribution< double > uniformAngles( 0.0, 360.0 );
@@ -107,7 +102,6 @@ int main()
         }
         catch( std::exception& e )
         {
-<<<<<<< Updated upstream
             if ( strcmp( e.what( ), "ERROR: Non-linear solver is stuck!" ) == 0 )
             {
                 ++countSolverStuckExceptions;
@@ -116,13 +110,6 @@ int main()
             else if ( strcmp( e.what( ), "Error: Satellite decayed" ) == 0 )
             {
                 ++countDecayedExceptions;
-=======
-            // std::cout << e.what( ) << std::endl;
-
-            if ( strcmp( e.what( ), "ERROR: Non-linear solver is stuck!" ) == 0 )
-            {
-                ++countSolverStuckExceptions;
->>>>>>> Stashed changes
             }
 
             // else if ( strcmp( e.what( ), "Error: Satellite decayed" ) == 0 )
@@ -174,69 +161,30 @@ int main()
 
         if ( xPositionRelativeError > tolerance )
         {
-<<<<<<< Updated upstream
             std::cout << "x-position relative error: "
                       << xPositionRelativeError << ", "
                       << state.Position( ).x  << ", "
                       << cartesianState[ 0 ] << std::endl;
-=======
-            // std::cout << "x-position relative error: "
-            //           << xPositionRelativeError << ", "
-            //           << state.Position( ).x  << ", "
-            //           << cartesianState[ 0 ] << std::endl;
-            // for ( unsigned int i = 0; i < 5; ++i )
-            // {
-            //     std::cout << keplerianElements[ i ] << ", ";
-            // }
-            // std::cout << keplerianElements[ 5 ] << std::endl;
-            // std::cout << std::endl;
->>>>>>> Stashed changes
             ++countXPositionRelativeErrorExceptions;
         }
 
         const double yPositionRelativeError = std::fabs( state.Position( ).y - cartesianState[ 1 ] ) / std::fabs( cartesianState[ 1 ] );
         if ( yPositionRelativeError > tolerance )
         {
-<<<<<<< Updated upstream
             std::cout << "y-position relative error: "
                       << yPositionRelativeError << ", "
                       << state.Position( ).y << ", "
                       << cartesianState[ 1 ]<< std::endl;
-=======
-            // std::cout << "y-position relative error: "
-            //           << yPositionRelativeError << ", "
-            //           << state.Position( ).y << ", "
-            //           << cartesianState[ 1 ]<< std::endl;
-            // for ( unsigned int i = 0; i < 5; ++i )
-            // {
-            //     std::cout << keplerianElements[ i ] << ", ";
-            // }
-            // std::cout << keplerianElements[ 5 ] << std::endl;
-            // std::cout << std::endl;
->>>>>>> Stashed changes
             ++countYPositionRelativeErrorExceptions;
         }
 
         const double zPositionRelativeError = std::fabs( state.Position( ).z - cartesianState[ 2 ] ) / std::fabs( cartesianState[ 2 ] );
         if ( zPositionRelativeError > tolerance )
         {
-<<<<<<< Updated upstream
             std::cout << "z-position relative error: "
                       << zPositionRelativeError << ", "
                       << state.Position( ).z << ", "
                       << cartesianState[ 2 ] << std::endl;
-=======
-            // std::cout << "z-position relative error: "
-            //           << zPositionRelativeError << ", "
-            //           << state.Position( ).z << ", "
-            //           << cartesianState[ 2 ] << std::endl;
-            // for ( unsigned int i = 0; i < 5; ++i )
-            // {
-            //     std::cout << keplerianElements[ i ] << ", ";
-            // }
-            // std::cout << keplerianElements[ 5 ] << std::endl;
-            // std::cout << std::endl;
->>>>>>> Stashed changes
             ++countZPositionRelativeErrorExceptions;
         }
 
