@@ -1,66 +1,11 @@
-
+# copyright (c) Abhishek Agrawal (abhishek.agrawal@protonmail.com)
 # Distributed under the MIT License.
 # See accompanying file LICENSE.md or copy at http://opensource.org/licenses/MIT
 
 language: cpp
 
-sudo: false
-
 compiler:
   - gcc
   - clang
 
-env:
-  global:
-    - secure: "AEUnxtmm14xBmnIumYaq2ZaTIGOxiEh4mzjg9DZUndRxgNC1WXQIcKhU3F1ISCZSSb8GNl0Tz5KeSsaXKfQDAPHbjnJPXY5m5DvQkRtlD9cif/ahNHtAUG1ClOs1ADEzU14LVKLyOWcqsC1DbnL9sjPeVRX2LXuPPYqxlbO0j4g12jFzKxcLEaqNGsMXScwLg0YEyOTmdtVRexpxgSgHc9Pbe9mbP0/X6H2gVqLT6aOtLEEj0Mn4ih1YkxBd8Zz0PH6d3EMAuPYdbpPIzzSeNila0UzKmQuH3jeaZFBeFVhaKVgbcIrSamFegfsERfOc2ZDK3LtUSu9xn10j5g2e0qsCErJVJMk5WIt48D/lVRQ1Mp4IhKHHHzhKgNEsEGEDvc/lLqjYLvCggxCr+aFl4GKJ8OySie4bZDbTwLc5xWtXQZ6PTfqzU8I24HUEBX07gjcO2YtvezwYuV10HXSG5DAfYwHPKzJ0OApTFTj8Dg0XSnqFJbKsY865vIzOuNqy93pEEJZwV7WEaSetAMvgGWyeB1fUDt/DQ8XaJIvbqjUrVYpAl3nq5fIpqBCtTPl4OgzkACbedtI8mP9IDiNunAoO5C2ceKvdgfpz4cbWSJ2Gz/XRF+zuFPF57ycSvf5V9HIKuYt2UoO61zQfqSKCgX0AIYPCWpVFJHaZhkcOwAU="
-  matrix:
-    - BUILD_TYPE=Debug
-    - BUILD_TYPE=Release
-
-matrix:
-  exclude:
-    - compiler: clang
-      env: COVERITY_SCAN_BRANCH_PATTERN=coverity_scan
-    - compiler: gcc
-      env: COVERITY_SCAN_BRANCH_PATTERN=coverity_scan BUILD_TYPE=Release
-
-addons:
-  apt:
-    packages:
-      - texlive
-      - libboost-all-dev
-      - libgsl0-dev
-  coverity_scan:
-    project:
-      name: "kartikkumar/atom"
-    notification_email: me@kartikkumar.com
-    build_command_prepend: "mkdir build; cd build; cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_TESTS=on -DBUILD_TESTS_WITH_EIGEN=on .."
-    build_command: "make"
-    branch_pattern: coverity_scan
-
-before_install:
-  - bash scripts/install_cmake.sh
-  - bash scripts/install_doxygen.sh
-  - chmod ugo+x scripts/check_doxygen.sh
-  - if [ "$COVERITY_SCAN_BRANCH_PATTERN" != "coverity_scan" ] && [ "$CXX" == "g++" ] && [ "$BUILD_TYPE" == "Debug" ]; then
-      pip install --user cpp-coveralls;
-    fi
-
-before_script::
-  - ls -R $HOME/cmake
-  - ls -R $HOME/doxygen
-
-script:
-  - if [ "$COVERITY_SCAN_BRANCH_PATTERN" != "coverity_scan" ]; then
-      mkdir build;
-      cd build;
-      $HOME/cmake/bin/cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_TESTS=on -DBUILD_TESTS_WITH_EIGEN=on -DDOXYGEN_EXECUTABLE=$HOME/doxygen/bin/doxygen -DBUILD_DOXYGEN_DOCS=on ..;
-      make;
-      ctest -V;
-      ../scripts/check_doxygen.sh;
-    fi
-
-after_success:
-  - if [ "$COVERITY_SCAN_BRANCH_PATTERN" != "coverity_scan" ] && [ "$CXX" == "g++" ] && [ "$BUILD_TYPE" == "Debug" ]; then
-      coveralls --root .. -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" -E ".*src/main.cpp.*";
-    fi
+script: make
