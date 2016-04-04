@@ -15,12 +15,23 @@
 #include <libsgp4/Vector.h>
 
 #include <Astro/astro.hpp>
+
+#include <boost/array.hpp>
+
 #include <SML/sml.hpp>
 
 #include "Atom/convertCartesianStateToTwoLineElements.hpp"
 
+typedef boost::array< double, 3 > Vector3;
+typedef boost::array< double, 6 > Vector6;
+
 int main( void )
 {
-    std::cout << "hello" << std::endl;
+    std::cout << "Execute Cartesian State To Two-Line Element Converter Diagnostics..."
+    std::cout.precision( 15 );
+
+    // Generate random keplerian elements
+
+
     return 0;
 }
