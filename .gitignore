@@ -35,7 +35,6 @@ doxydocs
 temp
 debug
 external
-cmake
 
 # Project files
 *.sublime*
