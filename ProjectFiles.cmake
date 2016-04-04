@@ -15,7 +15,7 @@ set(MAIN_SRC
 # Set project test source files.
 set(TEST_SRC
   "${TEST_SRC_PATH}/testAtom.cpp"
-  "${TEST_SRC_PATH}/testAtomSolver.cpp"
+#  "${TEST_SRC_PATH}/testAtomSolver.cpp"
   "${TEST_SRC_PATH}/testConvertCartesianStateToTwoLineElements.cpp"
   "${TEST_SRC_PATH}/testPrintFunctions.cpp"
 )
